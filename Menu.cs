@@ -91,7 +91,7 @@ namespace Template
                     string[] highscores = System.IO.File.ReadAllLines("scoreFile.txt");
                     for (int i = 0; i < highscores.Length; i++)
                     {
-                        spriteBatch.DrawString(Assets.MenuFont, "Highscores:" + highscores[i], new Vector2(200, 200), Color.Purple);
+                        spriteBatch.DrawString(Assets.MenuFont, "Highscores:" + highscores[i] + "\n", new Vector2(200, 200), Color.Purple);
                     }
 
                     spriteBatch.DrawString(Assets.MenuFont, "Press SPACE to restart\n Press ESCAPE to exit", new Vector2(250, 300), Color.Purple);
@@ -127,21 +127,44 @@ namespace Template
 
         public void DeathMenu()
         {
-            string hscore = Game1.HighScore.ToString() + "\n";
+            string hscore = Game1.HighScore.ToString();
             string[] lines = { hscore };
             lines.ToList();
 
             List<string> highscores = System.IO.File.ReadAllLines("scoreFile.txt").ToList();
             highscores.Sort();
 
-
-
             for (int i = highscores.Count; i < 3; i++)
             {
+                if (highscores[0] == "" || highscores[0] == "\n")
+                {
+                    highscores[0] = "0";
+                }
                 highscores.Add("0");
             }
 
-            System.IO.File.WriteAllLines("scoreFile.txt", lines);
+            System.IO.File.WriteAllLines("scoreFile.txt", highscores);
+
+            for (int i = 0; i < highscores.Count; i++)
+            {
+                if (highscores[0] == "0")
+                {
+                    highscores[i].Replace("0", hscore);
+                    System.IO.File.WriteAllLines("scoreFile.txt", highscores);
+                }
+
+                if (int.Parse(highscores[i]) < int.Parse(hscore))
+                {
+                    highscores[i] = hscore;
+                    System.IO.File.WriteAllLines("scoreFile.txt", highscores);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            
 
             /*
             for (int i = 0; i < highscores.Count; i++)

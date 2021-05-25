@@ -30,7 +30,7 @@ namespace Template
         public Player(Texture2D texture, Vector2 texturePos, float angle, Vector2 mousePos) : base(texture, texturePos, angle, mousePos)
         {
             hitBox.Size = new Point(20, 20);
-            health = new Health(10, 10);
+            health = new Health(10, 1);
         }
 
         public override void Update(Camera camera)
