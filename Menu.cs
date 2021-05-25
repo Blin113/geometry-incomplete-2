@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Template
@@ -24,6 +26,8 @@ namespace Template
 
         private Player player;
 
+        public List<string> highscores = new List<string>();
+
         public Menu(Player player)
         {
             this.player = player;
@@ -31,16 +35,16 @@ namespace Template
 
         public void Update()
         {
-            if (!System.IO.File.Exists("scoreFile.txt"))
+            if (!File.Exists("scoreFile.txt"))
             {
-                System.IO.File.Create("scoreFile.txt");
+                StreamWriter sw = new StreamWriter("scoreFile.txt");
 
-                string[] zero = { "0" };
-
-                for (int i = 3; i < 3; i++)
+                for (int i = 0; i < 3; i++)
                 {
-                    System.IO.File.WriteAllLines("scoreFile.txt", zero);
+                    sw.WriteLine("0");
                 }
+
+                sw.Close();
             }
 
             switch (currentMenu)
@@ -95,12 +99,8 @@ namespace Template
 
                 case CurrentMenu.DeathMenu:
                     spriteBatch.DrawString(Assets.MenuFont, "your score is:" + Game1.HighScore.ToString(), new Vector2(100, 100), Color.Purple);
-
-                    string[] highscores = System.IO.File.ReadAllLines("scoreFile.txt");
-                    for (int i = 0; i < highscores.Length; i++)
-                    {
-                        spriteBatch.DrawString(Assets.MenuFont, "Highscores:" + highscores[i] + "\n", new Vector2(140, 140), Color.Purple);
-                    }
+                    
+                    spriteBatch.DrawString(Assets.MenuFont, "Highscores:" + highscores, new Vector2(140, 140), Color.Purple);
 
                     spriteBatch.DrawString(Assets.MenuFont, "Press SPACE to restart\n Press ESCAPE to exit", new Vector2(250, 300), Color.Purple);
                     break;
@@ -136,20 +136,40 @@ namespace Template
         public void DeathMenu()
         {
             string hscore = Game1.HighScore.ToString();
-            //string[] lines = { hscore };
-            //lines.ToList();
-
-            List<string> highscores = System.IO.File.ReadAllLines("scoreFile.txt").ToList();
-            highscores.Sort();
             
-            System.IO.File.WriteAllLines("scoreFile.txt", highscores);
+            StreamReader sr = new StreamReader("scoreFile.txt");
+
+            string lines = sr.ReadLine();
+
+            sr.Close();
+
+            List<string> line = lines.Split('\n').ToList();
+
+            for(int i = 0; i < lines.Length; i++)
+            {
+                highscores.Add(lines[i].ToString());
+            }
+
+            highscores.Sort();
+
+            StreamWriter sw = new StreamWriter("scoreFile.txt");
+
+            sw.WriteLine(highscores);
+
+            sw.Close();
 
             for (int i = 0; i < highscores.Count; i++)
             {
                 if (highscores[0] == "0")
                 {
                     highscores[0] = hscore;
-                    System.IO.File.WriteAllLines("scoreFile.txt", highscores);
+
+                    StreamWriter sw1 = new StreamWriter("scoreFile.txt");
+
+                    sw1.WriteLine(highscores);
+
+                    sw1.Close();
+
                     break;
                 }
 
@@ -161,54 +181,20 @@ namespace Template
                     }
 
                     highscores[i] = hscore;
-                    System.IO.File.WriteAllLines("scoreFile.txt", highscores);
-                }
-                else
-                {
-                    break;
-                }
-            }
 
-            /*
-            for (int i = highscores.Count; i < 3; i++)
-            {
-                if (highscores[0] == "" || highscores[0] == "\n")
-                {
-                    highscores[0] = "0";
-                }
-                else if (string.IsNullOrEmpty(highscores[i]))
-                {
-                    highscores.Add("0");
+                    StreamWriter sw2 = new StreamWriter("scoreFile.txt");
+
+                    sw2.WriteLine(highscores);
+
+                    sw2.Close();
                 }
             }
-            
 
-
-            for (int i = 0; i < highscores.Count; i++)
-            {
-                if(string.IsNullOrEmpty(highscores[i]))
-                {
-                    System.IO.File.WriteAllLines("scoreFile.txt", lines);
-                }
-                else if (int.Parse(lines[0]) > int.Parse(highscores[i]))
-                {
-                    string temp = highscores[i];
-
-                    System.IO.File.WriteAllLines("scoreFile.txt", lines);
-
-                    highscores[i + 1] = temp;
-
-                    if (highscores.Count > 1)
-                    {
-                        highscores[i + 2] = highscores[i + 1];
-                        highscores[i + 1] = temp;
-                    }
-                }
-
-            }
-            */
             if (Keyboard.GetState().IsKeyDown(Keys.Space))
+            {
+                //Game1.restart = true;
                 currentMenu = CurrentMenu.StartMenu;
+            }
 
             //ESC will exit regardless
         }
