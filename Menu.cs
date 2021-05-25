@@ -1,11 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Template
 {
@@ -27,7 +24,6 @@ namespace Template
 
         private Player player;
 
-
         public Menu(Player player)
         {
             this.player = player;
@@ -35,6 +31,18 @@ namespace Template
 
         public void Update()
         {
+            if (!System.IO.File.Exists("scoreFile.txt"))
+            {
+                System.IO.File.Create("scoreFile.txt");
+
+                string[] zero = { "0" };
+
+                for (int i = 3; i < 3; i++)
+                {
+                    System.IO.File.WriteAllLines("scoreFile.txt", zero);
+                }
+            }
+
             switch (currentMenu)
             {
                 case CurrentMenu.StartMenu:
@@ -91,7 +99,7 @@ namespace Template
                     string[] highscores = System.IO.File.ReadAllLines("scoreFile.txt");
                     for (int i = 0; i < highscores.Length; i++)
                     {
-                        spriteBatch.DrawString(Assets.MenuFont, "Highscores:" + highscores[i] + "\n", new Vector2(200, 200), Color.Purple);
+                        spriteBatch.DrawString(Assets.MenuFont, "Highscores:" + highscores[i] + "\n", new Vector2(140, 140), Color.Purple);
                     }
 
                     spriteBatch.DrawString(Assets.MenuFont, "Press SPACE to restart\n Press ESCAPE to exit", new Vector2(250, 300), Color.Purple);
@@ -128,33 +136,30 @@ namespace Template
         public void DeathMenu()
         {
             string hscore = Game1.HighScore.ToString();
-            string[] lines = { hscore };
-            lines.ToList();
+            //string[] lines = { hscore };
+            //lines.ToList();
 
             List<string> highscores = System.IO.File.ReadAllLines("scoreFile.txt").ToList();
             highscores.Sort();
-
-            for (int i = highscores.Count; i < 3; i++)
-            {
-                if (highscores[0] == "" || highscores[0] == "\n")
-                {
-                    highscores[0] = "0";
-                }
-                highscores.Add("0");
-            }
-
+            
             System.IO.File.WriteAllLines("scoreFile.txt", highscores);
 
             for (int i = 0; i < highscores.Count; i++)
             {
                 if (highscores[0] == "0")
                 {
-                    highscores[i].Replace("0", hscore);
+                    highscores[0] = hscore;
                     System.IO.File.WriteAllLines("scoreFile.txt", highscores);
+                    break;
                 }
 
                 if (int.Parse(highscores[i]) < int.Parse(hscore))
                 {
+                    if(highscores.Count < 3)
+                    {
+                        highscores[i + 1] = highscores[i];
+                    }
+
                     highscores[i] = hscore;
                     System.IO.File.WriteAllLines("scoreFile.txt", highscores);
                 }
@@ -164,9 +169,21 @@ namespace Template
                 }
             }
 
+            /*
+            for (int i = highscores.Count; i < 3; i++)
+            {
+                if (highscores[0] == "" || highscores[0] == "\n")
+                {
+                    highscores[0] = "0";
+                }
+                else if (string.IsNullOrEmpty(highscores[i]))
+                {
+                    highscores.Add("0");
+                }
+            }
             
 
-            /*
+
             for (int i = 0; i < highscores.Count; i++)
             {
                 if(string.IsNullOrEmpty(highscores[i]))
